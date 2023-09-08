@@ -1,0 +1,11 @@
+{
+  "domain": "yandex_speechkit_tts",
+  "name": "Yandex Cloud SpeechKit TTS",
+  "documentation": "https://github.com/vutratenko/ha-yandexcloudtts",
+  "codeowners": ["@Forne","@vutratenko"],
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/vutratenko/hass-edge-tts/issues",
+  "requirements": ["yandex-speechkit==1.3.3"],
+  "version": "0.0.1"
+}
+
