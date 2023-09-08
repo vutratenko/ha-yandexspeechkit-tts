@@ -6,6 +6,12 @@ import aiohttp
 import async_timeout
 import voluptuous as vol
 
+from speechkit import configure_credentials, creds
+from speechkit import model_repository
+from io import BytesIO
+
+
+
 from homeassistant.components.tts import CONF_LANG, PLATFORM_SCHEMA, Provider
 from homeassistant.const import CONF_API_KEY, HTTP_OK
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -116,18 +122,23 @@ class YandexCloudSpeechKitProvider(Provider):
                     "speed": options.get(CONF_SPEED, self._speed),
                 }
 
-                headers = {
-                    'Authorization': 'Api-Key ' + self._key
-                }
-
-                request = await websession.post(YANDEX_API_URL, headers=headers, data=url_param)
-
-                if request.status != HTTP_OK:
-                    _LOGGER.error(
-                        "Error %d on load URL %s", request.status, request.url
+                configure_credentials(
+                    yandex_credentials=creds.YandexCredentials(
+                        api_key=self._key
                     )
-                    return (None, None)
-                data = await request.read()
+                )
+
+                model = model_repository.synthesis_model()
+
+                model.voice = self._speaker
+                model.role = self._emotion
+
+                result = model.synthesize('Пробуем работу спичкита', raw_format=False)
+                wavIO=BytesIO()
+
+                result.export(wavIO, format='wav')
+
+                data = wavIO.getvalue()
 
         except (asyncio.TimeoutError, aiohttp.ClientError):
             _LOGGER.error("Timeout for Yandex.Cloud SpeechKit TTS API")
